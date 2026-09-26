@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Beka Barber — Erkaklar sartaroshi</title>
+  <meta name="description" content="Barber Bekzod Aliyev: zamonaviy erkaklar soch turmagi, fade, soqol dizayni va issiq sochiq bilan klassik soqol olish.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='8' fill='%23111'/%3E%3Ctext x='20' y='28' font-family='Arial' font-weight='900' font-size='22' fill='%23c9a14a' text-anchor='middle'%3EB%3C/text%3E%3C/svg%3E">
+</head>
+<body>
+  <header class="header" id="header">
+    <div class="container header__inner">
+      <a href="#" class="logo" aria-label="Beka Barber"><span class="logo__mark">✂</span><span><b>BEKA</b><small>BARBER</small></span></a>
+      <nav class="nav" id="nav" aria-label="Asosiy menyu">
+        <a href="#home" class="active">Bosh sahifa</a>
+        <a href="#services">Narxlar</a>
+        <a href="#works">Ishlarim</a>
+        <a href="#about">Men haqimda</a>
+        <a href="#book">Yozilish</a>
+      </nav>
+      <span class="status" id="status"></span>
+      <button class="burger" id="burger" aria-label="Menyu" aria-expanded="false"><span></span><span></span><span></span></button>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero" id="home">
+      <div class="container hero__grid">
+        <div class="hero__text">
+          <p class="kicker">— Toshkent, Chilonzor</p>
+          <h1>Uslub.<br>Aniqlik.<br><span>Xarakter.</span></h1>
+          <p>Men Bekzod — 8 yillik tajribaga ega barber. Har bir soch turmagini yuzingiz shakli va turmush tarzingizga moslab yarataman.</p>
+          <div class="hero__actions"><a href="#book" class="btn btn--gold">Onlayn yozilish</a><a href="#works" class="btn btn--line">Ishlarimni ko'rish</a></div>
+          <div class="hero__stats"><div><b data-count="8">0</b><small>yil tajriba</small></div><div><b data-count="12000">0</b><small>soch turmagi</small></div><div><b>4.9★</b><small>Google reyting</small></div></div>
+        </div>
+        <div class="hero__media">
+          <img src="https://images.unsplash.com/photo-1629425733761-caae3b5f2e50?w=900&q=80&auto=format&fit=crop&crop=top" alt="Barber Bekzod Aliyev">
+          <div class="stamp">EST.<b>2018</b>BARBER</div>
+        </div>
+      </div>
+      <div class="marquee" aria-hidden="true"><div>FADE ✂ SOQOL ✂ KLASSIKA ✂ ISSIQ SOCHIQ ✂ BOLALAR ✂ UKLADKA ✂ FADE ✂ SOQOL ✂ KLASSIKA ✂ ISSIQ SOCHIQ ✂ BOLALAR ✂ UKLADKA ✂</div></div>
+    </section>
+
+    <section class="section" id="services">
+      <div class="container">
+        <div class="head reveal"><p class="kicker">— Narxlar</p><h2>Xizmatlar va narxlar</h2></div>
+        <div class="prices reveal" id="priceList"></div>
+      </div>
+    </section>
+
+    <section class="section section--dark" id="works">
+      <div class="container">
+        <div class="head reveal"><p class="kicker">— Portfolio</p><h2>Ishlarim</h2></div>
+        <div class="works reveal" id="worksGrid"></div>
+      </div>
+    </section>
+
+    <section class="section" id="about">
+      <div class="container about reveal">
+        <div class="about__img"><img src="https://images.unsplash.com/photo-1585747860715-2ba37e788b70?w=1000&q=80&auto=format&fit=crop" alt="Barbershop" loading="lazy"></div>
+        <div>
+          <p class="kicker">— Men haqimda</p>
+          <h2>Faqat soch emas — kayfiyat</h2>
+          <p class="muted">Barberlikni 2018-yilda Istanbulda boshlaganman, keyin Londondagi "Pall Mall Barbers" akademiyasida malaka oshirdim. Endi o'z studiyamda har bir mijozga 60 daqiqa vaqt ajrataman — shoshilmasdan, bir piyola choy bilan.</p>
+          <ul class="ticks"><li>Faqat oldindan yozilish — navbat yo'q</li><li>Premium kosmetika: Reuzel, Layrite</li><li>Har bir asbob sterilizatsiyadan o'tadi</li></ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section--dark" id="book">
+      <div class="container">
+        <div class="head reveal"><p class="kicker">— Onlayn yozilish</p><h2>3 qadamda joy band qiling</h2></div>
+        <div class="booking reveal">
+          <ol class="steps" id="steps"><li class="active">Xizmat</li><li>Kun va vaqt</li><li>Ma'lumot</li></ol>
+          <div class="step" data-step="0"><div class="choice" id="svcChoice"></div></div>
+          <div class="step" data-step="1" hidden>
+            <div class="days" id="days"></div>
+            <div class="slots" id="slots"></div>
+          </div>
+          <div class="step" data-step="2" hidden>
+            <form id="bookForm" class="form">
+              <label>Ismingiz<input required></label>
+              <label>Telefon<input type="tel" required placeholder="+998 __ ___ __ __"></label>
+              <label class="full">Izoh (ixtiyoriy)<input placeholder="Masalan: rasmni Telegramda yuboraman"></label>
+              <button class="btn btn--gold full" type="submit">Tasdiqlash</button>
+            </form>
+          </div>
+          <div class="summary" id="summary"></div>
+          <div class="nav-btns"><button class="btn btn--line" id="back" hidden>← Orqaga</button><button class="btn btn--gold" id="nextBtn" disabled>Davom etish →</button></div>
+          <div class="done" id="done" hidden></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <div class="head reveal"><p class="kicker">— Fikrlar</p><h2>Mijozlar nima deydi</h2></div>
+        <div class="reviews reveal">
+          <blockquote><p>"Shahardagi eng yaxshi fade. Bekzod har safar mukammal ishlaydi, gaplashish ham maroqli."</p><cite>— Sardor, doimiy mijoz</cite></blockquote>
+          <blockquote><p>"Issiq sochiq bilan soqol olish — alohida tajriba. Tavsiya qilaman!"</p><cite>— Jasur</cite></blockquote>
+          <blockquote><p>"O'g'limni olib keldim, juda sabrli ekan. Endi ikkalamiz faqat shu yerga kelamiz."</p><cite>— Otabek, 2 bola otasi</cite></blockquote>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer__grid">
+      <div><a href="#" class="logo"><span class="logo__mark">✂</span><span><b>BEKA</b><small>BARBER</small></span></a><p>Toshkent, Chilonzor, 9-kvartal, Bunyodkor 18</p></div>
+      <div><h4>Ish vaqti</h4><ul class="hours" id="hours"></ul></div>
+      <div><h4>Aloqa</h4><p><a href="tel:+998933332211">+998 93 333 22 11</a><br>Instagram: @beka.barber<br>Telegram: @bekabarber</p></div>
+    </div>
+    <p class="footer__bottom">© <span id="year">2026</span> Beka Barber. Stay sharp.</p>
+  </footer>
+
+  <div class="lightbox" id="lightbox" aria-hidden="true"><button id="lbClose" aria-label="Yopish">×</button><img id="lbImg" alt=""></div>
+  <div class="toast" id="toast" role="status"></div>
+  <script src="js/main.js"></script>
+</body>
+</html>
