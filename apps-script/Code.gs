@@ -6,6 +6,7 @@ function ruxsatVaSozlash() {
   ScriptApp.getProjectTriggers();
   var me = tg_('getMe', {});
   Logger.log(me.ok ? 'Bot ulandi: @' + me.result.username : 'Bot tokenida xato: ' + JSON.stringify(me));
+  if (getProp('WEBAPP_URL')) setupBot(); else Logger.log('WEBAPP_URL yo\'q: avval deploy qiling.');
 }
 
 /**
