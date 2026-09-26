@@ -1,3 +1,13 @@
+/** 1-QADAM: shu funksiyani ishga tushiring (Выполнить). Ruxsat so'raydi, jadvalni kerak bo'lsa sozlaydi, botni tekshiradi. Ma'lumotlarni o'chirmaydi. */
+function ruxsatVaSozlash() {
+  var sh = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Bookings');
+  var header = sh ? sh.getRange(1, 1, 1, 13).getValues()[0] : [];
+  if (!sh || header[9] !== 'xizmat') { setupSheets(); } else { Logger.log('Jadvallar joyida, tegilmadi.'); }
+  ScriptApp.getProjectTriggers();
+  var me = tg_('getMe', {});
+  Logger.log(me.ok ? 'Bot ulandi: @' + me.result.username : 'Bot tokenida xato: ' + JSON.stringify(me));
+}
+
 /**
  * Sartarosh Bot — Google Apps Script backend (v2)
  *
