@@ -208,3 +208,8 @@ h2 { font-size: clamp(2rem, 4.6vw, 3.4rem); }
 }
 
 [hidden] { display: none !important; }
+
+/* Onlayn yozilish: holat xabarlari */
+.slots-msg { grid-column: 1 / -1; color: var(--muted); font-size: .9rem; padding: 10px 0; }
+.form-error { grid-column: 1 / -1; color: #ff8a7a; font-size: .9rem; margin: 0; }
+.demo-note { margin-top: 12px; color: var(--muted); font-size: .8rem; }

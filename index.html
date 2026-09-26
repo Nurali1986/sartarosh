@@ -83,10 +83,11 @@
           </div>
           <div class="step" data-step="2" hidden>
             <form id="bookForm" class="form">
-              <label>Ismingiz<input required></label>
-              <label>Telefon<input type="tel" required placeholder="+998 __ ___ __ __"></label>
-              <label class="full">Izoh (ixtiyoriy)<input placeholder="Masalan: rasmni Telegramda yuboraman"></label>
-              <button class="btn btn--gold full" type="submit">Tasdiqlash</button>
+              <label>Ismingiz<input name="name" required maxlength="60" autocomplete="name"></label>
+              <label>Telefon<input name="phone" type="tel" required placeholder="+998 __ ___ __ __" autocomplete="tel"></label>
+              <label class="full">Izoh (ixtiyoriy)<input name="note" maxlength="200" placeholder="Masalan: rasmni Telegramda yuboraman"></label>
+              <p class="form-error full" id="formError" hidden></p>
+              <button class="btn btn--gold full" type="submit" id="submitBtn">Tasdiqlash</button>
             </form>
           </div>
           <div class="summary" id="summary"></div>
@@ -119,6 +120,8 @@
 
   <div class="lightbox" id="lightbox" aria-hidden="true"><button id="lbClose" aria-label="Yopish">×</button><img id="lbImg" alt=""></div>
   <div class="toast" id="toast" role="status"></div>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script src="js/config.js"></script>
   <script src="js/main.js"></script>
 </body>
 </html>

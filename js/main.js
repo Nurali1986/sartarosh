@@ -23,6 +23,9 @@ const HOURS = [["Yakshanba", null], ["Dushanba", [10, 21]], ["Seshanba", [10, 21
 document.addEventListener("DOMContentLoaded", () => {
   const $ = (s, p = document) => p.querySelector(s);
   const $$ = (s, p = document) => [...p.querySelectorAll(s)];
+  const MONTHS = ["yanvar", "fevral", "mart", "aprel", "may", "iyun", "iyul", "avgust", "sentabr", "oktabr", "noyabr", "dekabr"];
+  const WEEK = ["yakshanba", "dushanba", "seshanba", "chorshanba", "payshanba", "juma", "shanba"];
+  const uzDate = (d, weekday) => `${weekday ? WEEK[d.getDay()] + ", " : ""}${d.getDate()}-${MONTHS[d.getMonth()]}`;
   const money = (n) => n.toLocaleString("ru-RU").replace(/[  ,]/g, " ") + " so'm";
 
   const toast = $("#toast");
@@ -86,6 +89,18 @@ document.addEventListener("DOMContentLoaded", () => {
   $$("[data-count]").forEach((el) => counterObs.observe(el));
 
   // ---------- Booking wizard ----------
+  const API = (window.SARTAROSH_API || "").trim();
+  const tg = window.Telegram && window.Telegram.WebApp;
+  const inTelegram = !!(tg && tg.initData);
+  if (inTelegram) {
+    tg.ready();
+    tg.expand();
+    const u = tg.initDataUnsafe && tg.initDataUnsafe.user;
+    if (u) $("#bookForm [name=name]").value = [u.first_name, u.last_name].filter(Boolean).join(" ");
+    setTimeout(() => $("#book").scrollIntoView(), 300);
+  }
+  if (!API) $(".booking").insertAdjacentHTML("beforeend", '<p class="demo-note">Demo rejim: server ulanmagan, yozilish saqlanmaydi.</p>');
+
   const booking = { svc: null, day: null, time: null };
   let step = 0;
   const steps = $$(".step"), stepLabels = $$("#steps li"), next = $("#nextBtn"), back = $("#back");
@@ -93,28 +108,65 @@ document.addEventListener("DOMContentLoaded", () => {
   $("#svcChoice").innerHTML = SERVICES.map((s, i) => `<button type="button" class="opt" data-svc="${i}"><b>${s.name}</b><small>${s.time} daqiqa</small><em>${money(s.price)}</em></button>`).join("");
 
   const DAY_NAMES = ["Yak", "Du", "Se", "Chor", "Pay", "Ju", "Sha"];
+  const ymd = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
   const days = Array.from({ length: 7 }, (_, i) => { const d = new Date(); d.setHours(0, 0, 0, 0); d.setDate(d.getDate() + i); return d; });
-  $("#days").innerHTML = days.map((d, i) => `<button type="button" class="day" data-day="${i}" ${HOURS[d.getDay()][1] ? "" : "disabled"}><small>${i === 0 ? "Bugun" : DAY_NAMES[d.getDay()]}</small><b>${d.getDate()}</b></button>`).join("");
-
-  const renderSlots = () => {
-    const d = days[booking.day];
-    const [from, to] = HOURS[d.getDay()][1];
-    const dur = SERVICES[booking.svc].time;
-    const list = [];
-    for (let m = from * 60; m + dur <= to * 60; m += 60) list.push(m);
-    const nowMin = new Date().getHours() * 60 + new Date().getMinutes();
-    $("#slots").innerHTML = list.map((m, i) => {
-      const past = booking.day === 0 && m <= nowMin + 30;
-      const taken = (d.getDate() * 7 + i * 3) % 5 === 0;
-      const t = `${String(Math.floor(m / 60)).padStart(2, "0")}:00`;
-      return `<button type="button" class="slot" data-time="${t}" ${past || taken ? "disabled" : ""}>${t}</button>`;
+  const renderDays = (openMap) => {
+    $("#days").innerHTML = days.map((d, i) => {
+      const open = openMap ? openMap[ymd(d)] !== false : !!HOURS[d.getDay()][1];
+      return `<button type="button" class="day${booking.day === i ? " active" : ""}" data-day="${i}" ${open ? "" : "disabled"}><small>${i === 0 ? "Bugun" : DAY_NAMES[d.getDay()]}</small><b>${d.getDate()}</b></button>`;
     }).join("");
+  };
+  renderDays(null);
+  if (API) {
+    fetch(`${API}?action=config`).then((r) => r.json()).then((j) => {
+      if (!j.ok) return;
+      const map = {};
+      j.days.forEach((d) => (map[d.date] = d.open));
+      renderDays(map);
+    }).catch(() => {});
+  }
+
+  const localSlots = (d, dur) => {
+    const h = HOURS[d.getDay()][1];
+    if (!h) return [];
+    const nowMin = new Date().getHours() * 60 + new Date().getMinutes();
+    const out = [];
+    for (let m = h[0] * 60; m + dur <= h[1] * 60; m += 30) {
+      if (ymd(d) === ymd(new Date()) && m <= nowMin + 15) continue;
+      out.push(`${String(Math.floor(m / 60)).padStart(2, "0")}:${String(m % 60).padStart(2, "0")}`);
+    }
+    return out;
+  };
+
+  let slotReq = 0;
+  const renderSlots = async () => {
+    const d = days[booking.day];
+    const dur = SERVICES[booking.svc].time;
+    const req = ++slotReq;
+    const box = $("#slots");
+    box.innerHTML = '<p class="slots-msg">Bo\'sh vaqtlar yuklanmoqda…</p>';
+    let list;
+    try {
+      if (API) {
+        const r = await fetch(`${API}?action=slots&date=${ymd(d)}&dur=${dur}`);
+        const j = await r.json();
+        if (!j.ok) throw new Error(j.error);
+        list = j.slots;
+      } else list = localSlots(d, dur);
+    } catch (err) {
+      if (req === slotReq) box.innerHTML = '<p class="slots-msg">Vaqtlarni yuklab bo\'lmadi. Internetni tekshirib, kunni qayta tanlang.</p>';
+      return;
+    }
+    if (req !== slotReq) return;
+    box.innerHTML = list.length
+      ? list.map((t) => `<button type="button" class="slot" data-time="${t}">${t}</button>`).join("")
+      : '<p class="slots-msg">Bu kunga bo\'sh vaqt qolmadi — boshqa kunni tanlang.</p>';
   };
 
   const summary = () => {
     const parts = [];
     if (booking.svc !== null) parts.push(`<b>${SERVICES[booking.svc].name}</b> · ${money(SERVICES[booking.svc].price)}`);
-    if (booking.day !== null) parts.push(days[booking.day].toLocaleDateString("uz-UZ", { day: "numeric", month: "long" }));
+    if (booking.day !== null) parts.push(uzDate(days[booking.day]));
     if (booking.time) parts.push(`soat <b>${booking.time}</b>`);
     $("#summary").innerHTML = parts.join(" · ");
   };
@@ -134,6 +186,7 @@ document.addEventListener("DOMContentLoaded", () => {
     booking.svc = +o.dataset.svc;
     booking.time = null;
     $$(".opt").forEach((x) => x.classList.toggle("active", x === o));
+    if (booking.day !== null) renderSlots();
     show();
   });
   $("#days").addEventListener("click", (e) => {
@@ -163,13 +216,49 @@ document.addEventListener("DOMContentLoaded", () => {
   });
   back.addEventListener("click", () => { step = Math.max(0, step - 1); show(); });
 
-  $("#bookForm").addEventListener("submit", (e) => {
+  const formError = $("#formError"), submitBtn = $("#submitBtn");
+  const fail = (m) => { formError.textContent = m; formError.hidden = false; if (inTelegram) tg.HapticFeedback.notificationOccurred("error"); };
+
+  $("#bookForm").addEventListener("submit", async (e) => {
     e.preventDefault();
-    const name = e.target.querySelector("input").value.trim();
+    const f = e.target;
+    const data = {
+      action: "book", svc: booking.svc, date: ymd(days[booking.day]), time: booking.time,
+      name: f.elements.namedItem("name").value.trim(), phone: f.elements.namedItem("phone").value.trim(), note: f.elements.namedItem("note").value.trim(),
+      initData: inTelegram ? tg.initData : "",
+    };
+    if (data.phone.replace(/\D/g, "").length < 9) return fail("Telefon raqamni to'liq kiriting.");
+    formError.hidden = true;
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Yuborilmoqda…";
+    let res = { ok: true, telegram: false };
+    try {
+      if (API) {
+        // text/plain — brauzer preflight so'rovisiz yuboradi (Apps Script uchun kerak)
+        const r = await fetch(API, { method: "POST", body: JSON.stringify(data) });
+        res = await r.json();
+      }
+    } catch (err) {
+      res = { ok: false, error: "Server bilan aloqa bo'lmadi. Qayta urinib ko'ring." };
+    }
+    submitBtn.disabled = false;
+    submitBtn.textContent = "Tasdiqlash";
+    if (!res.ok) {
+      fail(res.error || "Xatolik yuz berdi.");
+      if (res.taken) { booking.time = null; step = 1; renderSlots(); show(); notify("Bu vaqt band bo'ldi — boshqa vaqt tanlang"); }
+      return;
+    }
     const s = SERVICES[booking.svc];
-    $("#done").innerHTML = `<div class="big">✂</div><h3>Ko'rishguncha, ${name}!</h3><p class="muted">${s.name} · ${days[booking.day].toLocaleDateString("uz-UZ", { weekday: "long", day: "numeric", month: "long" })}, soat ${booking.time}</p><p class="muted">Tasdiq SMS orqali keladi. Kechiksangiz, oldindan xabar bering.</p>`;
+    const tail = res.telegram
+      ? "Tasdiq va eslatma Telegram'da keladi. Kechiksangiz, oldindan xabar bering."
+      : "Sartarosh siz bilan telefon orqali bog'lanadi. Kechiksangiz, oldindan xabar bering.";
+    $("#done").innerHTML = `<div class="big">✂</div><h3>Ko'rishguncha, ${data.name.replace(/[<>&"]/g, "")}!</h3><p class="muted">${s.name} · ${uzDate(days[booking.day], true)}, soat ${booking.time}</p><p class="muted">${tail}</p>`;
     $$(".step, .nav-btns, #steps, #summary").forEach((el) => (el.hidden = true));
     $("#done").hidden = false;
+    if (inTelegram) {
+      tg.HapticFeedback.notificationOccurred("success");
+      setTimeout(() => tg.close(), 3500);
+    }
   });
 
   // Picking a price row jumps into the wizard
